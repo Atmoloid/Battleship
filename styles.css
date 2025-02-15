@@ -44,3 +44,9 @@ h1 {
     left: 60%;
     font-size: 40px;
 }
+.ship {
+    background-color: green;
+    width: 80px; 
+    height:40px;
+    position: absolute;
+}

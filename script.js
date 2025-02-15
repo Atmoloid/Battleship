@@ -7,5 +7,18 @@ function createGrid(gridId) {
     }
 }
 
-createGrid('player-grid');
+createGrid('playerGrid');
 createGrid('enemy-grid');
+
+class Ship{
+    constructor(x, y, playerGrid) {
+        this.x = x;
+        this.y = y;
+        this.grid = document.getElementById(playerGrid);
+        this.element = document.createElement('div');
+        this.element.classList.add('ship');
+        this.grid.appendChild(this.element);
+    }
+}
+
+new  Ship(2,3, 'playerGrid');
