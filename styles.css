@@ -17,6 +17,7 @@ h1 {
     justify-content: center;
     gap: 50px;
     margin-top: 50px;
+   /* position: absolute;*/
 }
 
 .grid {
