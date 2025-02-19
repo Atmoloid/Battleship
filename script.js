@@ -78,15 +78,18 @@ function getShipById(shipId) {
 }
 
 class Ship {
-    constructor(length, playerGrid) {
+     constructor(length, playerGrid) {
         this.length = length;
-        this.grid = document.getElementById(playerGrid); // Keep reference to the grid
+        this.grid = document.getElementById(playerGrid);
         this.element = document.createElement('div');
         this.element.classList.add('ship');
         this.element.draggable = true;
         this.element.id = `ship-${Date.now()}`;
-        this.element.style.width = `${length * 40}px`;
         this.element.dataset.length = length;
+        this.element.dataset.orientation = "horizontal"; // Imposta inizialmente orizzontale
+        this.element.style.width = `${length * 40}px`;
+        this.element.style.height = "40px"; // Altezza fissa per nave orizzontale
+
         this.element.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', JSON.stringify({
                 length: this.length,
@@ -96,21 +99,17 @@ class Ship {
             }));
         });
 
-        // *** KEY CHANGE: Append to a *container* inside the grid, or directly to the body ***
-        // Choose ONE of the following methods:
+        // ** Aggiunge il listener per la rotazione al click **
+        this.element.addEventListener('click', () => this.rotate());
 
-        // 1. Create a container inside the grid (Recommended):
-        let shipContainer = this.grid.querySelector('.ship-container'); // Get or create
+        let shipContainer = this.grid.querySelector('.ship-container');
         if (!shipContainer) {
             shipContainer = document.createElement('div');
             shipContainer.classList.add('ship-container');
-            shipContainer.style.position = 'absolute'; // Essential for positioning ships
+            shipContainer.style.position = 'absolute';
             this.grid.appendChild(shipContainer);
         }
         shipContainer.appendChild(this.element);
-
-        // 2. Append directly to the body (Less recommended, but simpler):
-        // document.body.appendChild(this.element);  // If you use this, adjust CSS
 
         this.x = null;
         this.y = null;
@@ -153,10 +152,26 @@ for (let i = 0; i < this.length; i++) {
     }
 }
 }
+rotate() {
+    const currentOrientation = this.element.dataset.orientation;
+    const newOrientation = currentOrientation === "horizontal" ? "vertical" : "horizontal";
+
+    // Cambia l'orientamento nei dati
+    this.element.dataset.orientation = newOrientation;
+
+    if (newOrientation === "vertical") {
+        this.element.style.width = "40px";
+        this.element.style.height = `${this.length * 40}px`;
+    } else {
+        this.element.style.width = `${this.length * 40}px`;
+        this.element.style.height = "40px";
+    }
+ }
 }
 
+
 createGrid('playerGrid');
-createGrid('enemy-grid');
+createGrid('enemyGrid');
 
 const ship1 = new Ship(4, 'playerGrid');
 const ship2 = new Ship(3, 'playerGrid');
