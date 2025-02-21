@@ -178,3 +178,73 @@ const ship2 = new Ship(3, 'playerGrid');
 const ship3 = new Ship(2, 'playerGrid');
 const ship4 = new Ship(2, 'playerGrid');
 const ship5 = new Ship(1, 'playerGrid');
+
+class EnemyShip {
+    constructor(length, enemyGrid) {
+        this.length = length;
+        this.grid = document.getElementById(enemyGrid);
+        this.element = document.createElement('div');
+        this.element.classList.add('ship');
+        this.element.draggable = false;
+        this.element.id = `enemy-ship-${Date.now()}`;
+        this.element.dataset.length = length;
+        this.element.dataset.orientation = "horizontal";
+        this.element.style.width = `${length * 40}px`;
+        this.element.style.height = "40px";
+
+        let shipContainer = this.grid.querySelector('.ship-container');
+        if (!shipContainer) {
+            shipContainer = document.createElement('div');
+            shipContainer.classList.add('ship-container');
+            shipContainer.style.position = 'absolute';
+            this.grid.appendChild(shipContainer);
+        }
+        shipContainer.appendChild(this.element);
+
+        this.placeRandomly();
+    }
+
+    placeRandomly() {
+        let x, y;
+        let validPlacement = false;
+
+        while (!validPlacement) {
+            x = Math.floor(Math.random() * (10 - this.length + 1));
+            y = Math.floor(Math.random() * 10);
+
+            validPlacement = true;
+            for (let i = 0; i < this.length; i++) {
+                const cellIndex = y * 10 + x + i;
+                const cell = document.querySelector(`#enemyGrid .cell[data-index="${cellIndex}"]`);
+                if (cell.classList.contains('ship-occupied')) {
+                    validPlacement = false;
+                    break;
+                }
+            }
+        }
+
+        this.setPosition(x, y);
+    }
+
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.element.style.left = `${x * 40}px`;
+        this.element.style.top = `${y * 40}px`;
+
+        for (let i = 0; i < this.length; i++) {
+            const cellIndex = y * 10 + x + i;
+            const cell = document.querySelector(`#enemyGrid .cell[data-index="${cellIndex}"]`);
+            if (cell) {
+                cell.classList.add('ship-occupied');
+            }
+        }
+    }
+}
+
+// Creazione delle navi nemiche
+const enemyShip1 = new EnemyShip(4, 'enemyGrid');
+const enemyShip2 = new EnemyShip(3, 'enemyGrid');
+const enemyShip3 = new EnemyShip(2, 'enemyGrid');
+const enemyShip4 = new EnemyShip(2, 'enemyGrid');
+const enemyShip5 = new EnemyShip(1, 'enemyGrid');
