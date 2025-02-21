@@ -191,6 +191,7 @@ class EnemyShip {
         this.element.dataset.orientation = "horizontal";
         this.element.style.width = `${length * 40}px`;
         this.element.style.height = "40px";
+        this.element.style.opacity = "0%";
 
         let shipContainer = this.grid.querySelector('.ship-container');
         if (!shipContainer) {
