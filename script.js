@@ -9,6 +9,104 @@ function createGrid(gridId) {
         cell.addEventListener('dragover', allowDrop);
         cell.addEventListener('drop', dropShip);
     }
+    const enemyCells = document.querySelectorAll('#enemyGrid .cell');
+enemyCells.forEach(cell => {
+    cell.addEventListener('click', handleHit);
+});
+
+function handleHit(event) {
+    const cell = event.target;
+    const cellIndex = parseInt(cell.dataset.index);
+    const x = cellIndex % 10;
+    const y = Math.floor(cellIndex / 10);
+
+    if (cell.classList.contains('hit') || cell.classList.contains('miss')) {
+        return;
+    }
+
+    let hitShip = false;
+    let hitShipObject = null;
+
+    for (const ship of [enemyShip1, enemyShip2, enemyShip3, enemyShip4, enemyShip5]) {
+        if (ship.x !== null && ship.y !== null) {
+            for (let i = 0; i < ship.length; i++) {
+                if (ship.element.dataset.orientation === "horizontal") {
+                    if (ship.x + i === x && ship.y === y) {
+                        hitShip = true;
+                        hitShipObject = ship;
+                        break;
+                    }
+                } else {
+                    if (ship.x === x && ship.y + i === y) {
+                        hitShip = true;
+                        hitShipObject = ship;
+                        break;
+                    }
+                }
+            }
+        }
+        if (hitShip) break;
+    }
+
+    if (hitShip) {
+        cell.classList.add('hit');
+        cell.innerHTML = '<span class="hit-marker">×</span>';
+        cell.style.color = 'green';
+        cell.style.zIndex = '1';
+
+        if (hitShipObject) {
+            hitShipObject.destroy(); 
+            for(let i = 0; i < hitShipObject.length; i++){
+                if(hitShipObject.element.dataset.orientation === "horizontal"){
+                    const cellIndexToRemove = (hitShipObject.y * 10) + (hitShipObject.x + i);
+                    const cellToRemove = document.querySelector(`#enemyGrid .cell[data-index="${cellIndexToRemove}"]`);
+                    if(cellToRemove){
+                        cellToRemove.classList.remove('ship-occupied')
+                    }
+                } else {
+                    const cellIndexToRemove = ((hitShipObject.y + i) * 10) + hitShipObject.x;
+                    const cellToRemove = document.querySelector(`#enemyGrid .cell[data-index="${cellIndexToRemove}"]`);
+                    if(cellToRemove){
+                        cellToRemove.classList.remove('ship-occupied')
+                    }
+                }
+            }
+        }
+    } else {
+        cell.classList.add('miss');
+        cell.innerHTML = '<span class="miss-marker">●</span>';
+        cell.style.color = 'green';
+    }
+
+    // Dopo il turno del giocatore, il nemico spara con un ritardo di 1 secondo
+    setTimeout(enemyTurn, 1000);
+}
+
+function enemyTurn() {
+    let validMove = false;
+    let cellIndex;
+    let cell;
+
+    while (!validMove) {
+        cellIndex = Math.floor(Math.random() * 100);
+        cell = document.querySelector(`#playerGrid .cell[data-index="${cellIndex}"]`);
+        
+        if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
+            validMove = true;
+        }
+    }
+
+    if (cell.classList.contains('ship-occupied')) {
+        cell.classList.add('hit');
+        cell.innerHTML = '<span class="hit-marker">×</span>';
+        cell.style.color = 'black';  
+    } else {
+        cell.classList.add('miss');
+        cell.innerHTML = '<span class="miss-marker">●</span>';
+        cell.style.color = 'green';
+    }
+}
+
 }
 
 function allowDrop(event) {
@@ -36,7 +134,7 @@ function dropShip(event) {
 
     const shipElement = document.getElementById(data.shipId);
 
-    // Check for overlaps
+    
     for (let i = 0; i < shipLength; i++) {
         const targetCellIndex = cellIndex + i;
         const targetCell = document.querySelector(`#playerGrid .cell[data-index="${targetCellIndex}"]`);
@@ -45,23 +143,23 @@ function dropShip(event) {
         }
     }
 
-    // Position the ship relative to the grid container
+    
     shipElement.style.left = `${x * 40}px`;
     shipElement.style.top = `${y * 40}px`;
 
-    // Update ship's coordinates
+   
     const ship = getShipById(data.shipId);
     ship.x = x;
     ship.y = y;
 
-    // Mark cells as occupied
+    
     for (let i = 0; i < shipLength; i++) {
         const targetCellIndex = cellIndex + i;
         const targetCell = document.querySelector(`#playerGrid .cell[data-index="${targetCellIndex}"]`);
         targetCell.classList.add('ship-occupied');
     }
 
-    // Remove the ship from its initial position (if it was placed there)
+    
     if (data.startX !== undefined && data.startY !== undefined) {
         for (let i = 0; i < shipLength; i++) {
             const originalCellIndex = data.startX + i;
@@ -86,9 +184,9 @@ class Ship {
         this.element.draggable = true;
         this.element.id = `ship-${Date.now()}`;
         this.element.dataset.length = length;
-        this.element.dataset.orientation = "horizontal"; // Imposta inizialmente orizzontale
+        this.element.dataset.orientation = "horizontal"; 
         this.element.style.width = `${length * 40}px`;
-        this.element.style.height = "40px"; // Altezza fissa per nave orizzontale
+        this.element.style.height = "40px"; 
 
         this.element.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -99,7 +197,7 @@ class Ship {
             }));
         });
 
-        // ** Aggiunge il listener per la rotazione al click **
+        
         this.element.addEventListener('click', () => this.rotate());
 
         let shipContainer = this.grid.querySelector('.ship-container');
@@ -121,7 +219,7 @@ let x, y;
 let validPlacement = false;
 
 while (!validPlacement) {
-    x = Math.floor(Math.random() * (10 - this.length + 1)); // Evita che la nave esca dalla griglia
+    x = Math.floor(Math.random() * (10 - this.length + 1)); 
     y = Math.floor(Math.random() * 10);
 
     validPlacement = true;
@@ -156,7 +254,7 @@ rotate() {
     const currentOrientation = this.element.dataset.orientation;
     const newOrientation = currentOrientation === "horizontal" ? "vertical" : "horizontal";
 
-    // Cambia l'orientamento nei dati
+   
     this.element.dataset.orientation = newOrientation;
 
     if (newOrientation === "vertical") {
@@ -167,6 +265,7 @@ rotate() {
         this.element.style.height = "40px";
     }
  }
+
 }
 
 
@@ -192,6 +291,7 @@ class EnemyShip {
         this.element.style.width = `${length * 40}px`;
         this.element.style.height = "40px";
         this.element.style.opacity = "0%";
+        this.hits = 0;
 
         let shipContainer = this.grid.querySelector('.ship-container');
         if (!shipContainer) {
@@ -241,9 +341,23 @@ class EnemyShip {
             }
         }
     }
+    hit() {
+        this.hits++;
+        console.log(`Nave ${this.element.id} colpita! Colpi: ${this.hits}`);
+        if (this.hits >= this.length) {
+            console.log(`Ship ${this.element.id} sunken!`);
+            this.element.style.opacity = "100%";
+        }
+    }
+    destroy() {
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+            this.element = null; 
+        }
+    }
 }
 
-// Creazione delle navi nemiche
+
 const enemyShip1 = new EnemyShip(4, 'enemyGrid');
 const enemyShip2 = new EnemyShip(3, 'enemyGrid');
 const enemyShip3 = new EnemyShip(2, 'enemyGrid');
