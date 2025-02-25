@@ -1,59 +1,124 @@
-# Battleship
+# Battleship Game
 
-A classic battleship game implemented using JavaScript, CSS, and HTML.
+## Description
+This is a simple implementation of the classic Battleship game using HTML, CSS, and JavaScript. The game allows players to place their ships on a grid and take turns attacking enemy ships. The enemy AI makes random attacks on the player's grid.
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Setup and Installation](#setup-and-installation)
-- [Code Breakdown](#code-breakdown)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+## Technologies Used
+- HTML
+- CSS
+- JavaScript
 
-## Introduction
-Battleship is a popular game where players try to sink each other's ships on a grid. This project is a web-based implementation of the game, allowing players to play against an AI opponent.
-
-## Setup and Installation
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/Atmoloid/Battleship.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd Battleship
-    ```
-3. Open `index.html` in your web browser to start the game.
+## How to Play
+1. Ships are placed randomly on the player's grid at the start of the game.
+2. The player clicks on enemy grid cells to attack.
+3. A hit is marked with an '×', while a miss is marked with '●'.
+4. After each player move, the enemy AI attacks a random cell on the player's grid.
+5. The game continues until all ships of one side are destroyed.
 
 ## Code Breakdown
-### index.html
-The main HTML structure for the game interface:
-```html
-<!DOCTYPE html>
-<html lang="eng">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Battleship</title>
-</head>
-<body>
-    <h1>BATTLESHIP</h1>
-    <div class="container">
-        <div class="grid" id="playerGrid"></div>
-        <h3 id="player">YOU</h3>
-        <div class="grid" id="enemyGrid"></div>
-        <h3 id="enemy">ENEMY</h3>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+
+### 1. **HTML Structure (index.html)**
+- Defines the game layout with two grids: `#playerGrid` and `#enemyGrid`.
+- Includes a `script.js` file to handle game logic.
+
+### 2. **Grid Creation (script.js)**
+```javascript
+function createGrid(gridId) {
+    const grid = document.getElementById(gridId);
+    for (let i = 0; i < 100; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        grid.appendChild(cell);
+    }
+}
 ```
-- The HTML file sets up the basic structure and links to the CSS and JavaScript files.
+- Generates a 10x10 grid dynamically.
+- Each cell is assigned an index for tracking.
 
-### CSS and JavaScript Files
-- `styles.css`: Contains the styling for the game interface.
-- `main.js`, `game.js`, `board.js`, `ship.js`: These files likely contain the main game logic, board setup, and ship functionalities. Unfortunately, I was unable to retrieve the contents of these files.
+### 3. **Handling Player Attacks (script.js)**
+```javascript
+function handleHit(event) {
+    const cell = event.target;
+    if (cell.classList.contains('hit') || cell.classList.contains('miss')) return;
+    
+    let hit = checkIfHit(cell);
+    if (hit) {
+        cell.classList.add('hit');
+        cell.innerHTML = '<span class="hit-marker">×</span>';
+    } else {
+        cell.classList.add('miss');
+        cell.innerHTML = '<span class="miss-marker">●</span>';
+    }
+    setTimeout(enemyTurn, 1000);
+}
+```
+- Prevents attacking the same cell twice.
+- Checks if a ship is hit and marks the cell accordingly.
+- Initiates the enemy turn after a short delay.
 
-## Usage
-1. Open `index.html` in your web browser.
-2. Play the game by placing your ships and taking turns to attack the enemy grid.
+### 4. **Enemy AI Logic (script.js)**
+```javascript
+function enemyTurn() {
+    let validMove = false, cell;
+    while (!validMove) {
+        let cellIndex = Math.floor(Math.random() * 100);
+        cell = document.querySelector(`#playerGrid .cell[data-index="${cellIndex}"]`);
+        if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) validMove = true;
+    }
+    cell.classList.add(cell.classList.contains('ship-occupied') ? 'hit' : 'miss');
+    cell.innerHTML = cell.classList.contains('hit') ? '<span class="hit-marker">×</span>' : '<span class="miss-marker">●</span>';
+}
+```
+- Randomly selects an unmarked cell.
+- Determines whether the cell contains a ship.
+- Marks it as hit or miss.
+
+### 5. **Ship Class & Placement (script.js)**
+```javascript
+class Ship {
+    constructor(length, gridId) {
+        this.length = length;
+        this.grid = document.getElementById(gridId);
+        this.placeRandomly();
+    }
+
+    placeRandomly() {
+        let validPlacement = false;
+        while (!validPlacement) {
+            let x = Math.floor(Math.random() * (10 - this.length + 1));
+            let y = Math.floor(Math.random() * 10);
+            validPlacement = this.checkPlacement(x, y);
+        }
+    }
+}
+```
+- Creates ship objects with a specific length.
+- Places them randomly while avoiding overlaps.
+
+### 6. **CSS Styling (styles.css)**
+```css
+body {
+    background-color: black;
+    color: green;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    grid-template-rows: repeat(10, 40px);
+    border: 2px solid green;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid green;
+}
+```
+- Uses a retro gaming theme with pixel-style fonts.
+- Defines a 10x10 grid with a green border.
+- Cells are styled to fit within the grid structure.
+
