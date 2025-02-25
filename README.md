@@ -1,9 +1,3 @@
-It seems that some of the file retrievals failed. However, I did manage to retrieve the content of the `index.html` file. I will proceed with drafting the README using the available information. We may need to manually check the remaining files later.
-
-### README Draft for Battleship
-
----
-
 # Battleship
 
 A classic battleship game implemented using JavaScript, CSS, and HTML.
@@ -63,13 +57,3 @@ The main HTML structure for the game interface:
 ## Usage
 1. Open `index.html` in your web browser.
 2. Play the game by placing your ships and taking turns to attack the enemy grid.
-
-## Contributing
-Contributions are welcome! Please fork the repository and submit a pull request.
-
-## License
-This project is licensed under the MIT License.
-
----
-
-Please check the remaining JavaScript files manually or update them here for a more detailed code breakdown section.
